@@ -33031,7 +33031,7 @@ var GoLang = class {
       return void 0;
     }
     const modFileContent = fs.readFileSync(modFilePath, "utf8");
-    const versionMatch = modFileContent.match(/^go\s+([\d.]+)/m);
+    const versionMatch = modFileContent.match(/^go\s+(\d+\.\d+)/m);
     return versionMatch ? versionMatch[1] : void 0;
   }
 };
@@ -33150,6 +33150,7 @@ async function checkEOLVersions(repoName) {
   const failBuild = getFailBuild();
   const languageHandler = LanguageFactory.create(language);
   const currentVersion = await languageHandler.getVersion();
+  console.log("Found language version:", currentVersion);
   const endOfLifeApiUrl = `https://endoflife.date/api/${language}.json`;
   if (!failBuild && Object.keys(webhookUrls).length === 0) {
     throw new Error("At least one webhook URL must be provided");
@@ -33186,9 +33187,14 @@ async function checkEOLVersions(repoName) {
     return;
   }
   const eol = isEOL(currentVersionInfo);
-  const statusMsg = "End of life check " + (eol ? "FAILED" : "ok");
-  if (eol && failBuild) {
-    throw new Error(statusMsg);
+  let statusMsg;
+  if (eol) {
+    statusMsg = `End of life check FAILED, EOL date was ${currentVersionInfo.eol}`;
+    if (failBuild) {
+      throw new Error(statusMsg);
+    }
+  } else {
+    statusMsg = "End of life check ok";
   }
   console.log(statusMsg);
 }
