@@ -4,6 +4,7 @@ import * as core from "@actions/core";
 async function run() {
   try {
     const repoName = getRepositoryName();
+    console.log("Feature branch: Baliedge/fail-build");
     console.log(`The repository name is: ${repoName}`);
 
     await checkEOLVersions(repoName);
@@ -11,6 +12,7 @@ async function run() {
     if (error instanceof Error) {
       core.setFailed(error.message);
     } else {
+      console.error(error);
       core.setFailed("An unknown error occurred");
     }
   }

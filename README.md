@@ -57,14 +57,36 @@ jobs:
 | Name                  | Description                           | Required | Default |
 | --------------------- | ------------------------------------- | -------- | ------- |
 | `language`            | Programming language to check for EOL | Yes      |         |
+| `fail-build`          | Set `true` to fail build when EOL check fails | No | false |
 | `slack-webhook-url`   | Webhook URL for Slack                 | No       |         |
 | `discord-webhook-url` | Webhook URL for Discord               | No       |         |
 | `teams-webhook-url`   | Webhook URL for Microsoft Teams       | No       |         |
 
-## Example
+## Examples
 
 ```yaml
-name: EOL Alert
+name: EOL Alert on Build
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  eol-alert:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run EOL Alert
+        uses: insectkorea/eol-alert@v1
+        with:
+          language: 'node'
+          fail-build: true
+```
+
+```yaml
+name: Scheduled EOL Alert
 
 on:
   schedule:
