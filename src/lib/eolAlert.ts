@@ -22,15 +22,20 @@ export async function checkEOLVersions(repoName: string) {
   }
 
   const webhookUrls = getWebhookUrls();
+  const failBuild = getFailBuild();
+  console.log("fail-build:", failBuild);
 
   const languageHandler = LanguageFactory.create(language);
   const currentVersion = await languageHandler.getVersion();
 
   const endOfLifeApiUrl = `https://endoflife.date/api/${language}.json`;
 
-  if (Object.keys(webhookUrls).length === 0) {
+  if (!failBuild && Object.keys(webhookUrls).length === 0) {
     throw new Error("At least one webhook URL must be provided");
   }
+
+  let currentVersionInfo: VersionInfo;
+
   try {
     const response = (await axios.get(endOfLifeApiUrl)) as {
       data: EOLResponse;
@@ -41,9 +46,9 @@ export async function checkEOLVersions(repoName: string) {
       return;
     }
 
-    const currentVersionInfo = response.data.find(
+    currentVersionInfo = response.data.find(
       (v: VersionInfo) => v.cycle === currentVersion,
-    );
+    ) as VersionInfo;
 
     const latestVersionInfo = response.data[0];
 
@@ -67,7 +72,16 @@ export async function checkEOLVersions(repoName: string) {
     await sendAlerts(webhookUrls, message);
   } catch (error) {
     console.error("Error fetching versions or sending alert:", error);
+    return;
   }
+
+  const eol = isEOL(currentVersionInfo);
+  const statusMsg = "End of life check " + (eol?"FAILED":"ok");
+  if (eol && failBuild) {
+    // Fail build action.
+    throw new Error(statusMsg);
+  }
+  console.log(statusMsg);
 }
 
 /**
@@ -103,6 +117,18 @@ function createAlertMessage(
   :arrow_forward: Latest release: ${currentVersionInfo.latest} on ${currentVersionInfo.latestReleaseDate}.
   :arrow_forward: Latest release of latest version: ${latestVersionInfo.latest} on ${latestVersionInfo.latestReleaseDate}.`;
   }
+}
+
+/**
+ * Check if version is EOL
+ * @param versionInfo
+ * @returns boolean
+ */
+function isEOL(versionInfo: VersionInfo): boolean {
+  assert(typeof versionInfo.eol === "string", "EOL must be a string");
+  const eolDate = new Date(versionInfo.eol);
+  const today = new Date();
+  return eolDate < today;
 }
 
 /**
@@ -146,6 +172,14 @@ function getWebhookUrls(): { [channel: string]: string } {
   }
 
   return webhookUrls;
+}
+
+/**
+ * Get fail-build flag
+ * @returns Boolean
+ */
+function getFailBuild(): boolean {
+  return core.getBooleanInput("fail-build");
 }
 
 export function getRepositoryName(): string {
