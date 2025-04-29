@@ -12,60 +12,24 @@ EOL Alert is a GitHub Action that alerts you about the End-of-Life (EOL) of majo
 
 ## Supported Languages
 
-- Go (go)
-- Node.js (nodejs)
-- Python (python)
-- Ruby (ruby)
-- Rust (rust)
+- Go (`golang`)
+- Node.js (`node`)
+- Python (`python`)
+- Ruby (`ruby`)
+- Rust (`rust`)
 
-## Supported Channels
+## Supported Alert Channels
 
 - Slack
 - Discord
 - Microsoft Teams
 
 ## Usage
+To use this action, create a workflow file (e.g., `.github/workflows/eol-alert.yml`) in your GitHub repository like the examples below.
 
-To use this action, create a workflow file (e.g., `.github/workflows/eol-alert.yml`) in your GitHub repository with the following content:
-
+### EOL Check on Build
 ```yaml
-name: EOL Alert
-
-on:
-  schedule:
-    - cron: '0 0 * * *' # Runs daily at midnight
-  workflow_dispatch:
-
-jobs:
-  eol-alert:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Run EOL Alert
-        uses: insectkorea/eol-alert@v1
-        with:
-          language: 'golang'
-          slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          discord-webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL }}
-```
-
-## Inputs
-
-| Name                  | Description                           | Required | Default |
-| --------------------- | ------------------------------------- | -------- | ------- |
-| `language`            | Programming language to check for EOL | Yes      |         |
-| `fail-build`          | Set `true` to fail build when EOL check fails | No | false |
-| `slack-webhook-url`   | Webhook URL for Slack                 | No       |         |
-| `discord-webhook-url` | Webhook URL for Discord               | No       |         |
-| `teams-webhook-url`   | Webhook URL for Microsoft Teams       | No       |         |
-
-## Examples
-
-```yaml
-name: EOL Alert on Build
+name: EOL Check on Build
 
 on:
   push:
@@ -81,10 +45,11 @@ jobs:
       - name: Run EOL Alert
         uses: insectkorea/eol-alert@v1
         with:
-          language: 'node'
+          language: node
           fail-build: true
 ```
 
+### Scheduled EOL Alert
 ```yaml
 name: Scheduled EOL Alert
 
@@ -103,12 +68,22 @@ jobs:
       - name: Run EOL Alert
         uses: insectkorea/eol-alert@v1
         with:
-          language: 'node'
+          language: node
           slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           discord-webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
           teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL }}
           google-chat-webhook-url: ${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}
 ```
+
+## Inputs
+
+| Name                  | Description                           | Required | Default |
+| --------------------- | ------------------------------------- | -------- | ------- |
+| `language`            | Programming language to check for EOL | Yes      |         |
+| `fail-build`          | Set `true` to fail build when EOL check fails | No | false |
+| `slack-webhook-url`   | Webhook URL for Slack                 | No       |         |
+| `discord-webhook-url` | Webhook URL for Discord               | No       |         |
+| `teams-webhook-url`   | Webhook URL for Microsoft Teams       | No       |         |
 
 ## Development
 

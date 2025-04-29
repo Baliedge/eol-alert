@@ -105,7 +105,7 @@ describe("checkEOLVersions", () => {
         text: expect.stringContaining(`will reach EOL on ${futureEOLDate}`),
       },
     );
-    expect(console.log).toHaveBeenCalledWith("End of life check ok");
+    expect(console.log).toHaveBeenCalledWith("End of life check for golang ok");
   });
 
   it("should handle when the current version is not found in the EOL data", async () => {
@@ -137,21 +137,6 @@ describe("checkEOLVersions", () => {
     expect(mockedAxios.post).not.toHaveBeenCalled();
     expect(console.log).toHaveBeenCalledWith(
       "Current version 1.13 not found in the EOL data.",
-    );
-  });
-
-  it("should throw an error if no webhook URLs are provided", async () => {
-    mockedCore.getInput.mockImplementation((name: string) => {
-      switch (name) {
-        case "language":
-          return "golang";
-        default:
-          return "";
-      }
-    });
-
-    await expect(checkEOLVersions(repoName)).rejects.toThrow(
-      "At least one webhook URL must be provided",
     );
   });
 
@@ -188,7 +173,7 @@ describe("fail-build", () => {
     mockedAxios.get.mockResolvedValue(fixtureAxiosEOLResp);
 
     await expect(checkEOLVersions(repoName)).rejects.toThrow(
-      "End of life check FAILED",
+      "End of life check for golang FAILED",
     );
   });
 
@@ -211,7 +196,9 @@ describe("fail-build", () => {
 
     await checkEOLVersions(repoName);
 
-    expect(console.log).toHaveBeenCalledWith("End of life check FAILED");
+    expect(console.log).toHaveBeenCalledWith(
+      `End of life check for golang FAILED, EOL date was ${fixtureAxiosEOLResp.data[0].eol}`,
+    );
   });
 
   it("succeeds when EOL and fail-build unset", async () => {
@@ -231,7 +218,9 @@ describe("fail-build", () => {
 
     await checkEOLVersions(repoName);
 
-    expect(console.log).toHaveBeenCalledWith("End of life check FAILED");
+    expect(console.log).toHaveBeenCalledWith(
+      `End of life check for golang FAILED, EOL date was ${fixtureAxiosEOLResp.data[0].eol}`,
+    );
   });
 });
 

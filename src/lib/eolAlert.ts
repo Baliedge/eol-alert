@@ -26,12 +26,9 @@ export async function checkEOLVersions(repoName: string) {
 
   const languageHandler = LanguageFactory.create(language);
   const currentVersion = await languageHandler.getVersion();
+  console.log(`Found ${language} version: ${currentVersion}`);
 
   const endOfLifeApiUrl = `https://endoflife.date/api/${language}.json`;
-
-  if (!failBuild && Object.keys(webhookUrls).length === 0) {
-    throw new Error("At least one webhook URL must be provided");
-  }
 
   let currentVersionInfo: VersionInfo;
 
@@ -75,10 +72,16 @@ export async function checkEOLVersions(repoName: string) {
   }
 
   const eol = isEOL(currentVersionInfo);
-  const statusMsg = "End of life check " + (eol ? "FAILED" : "ok");
-  if (eol && failBuild) {
-    // Fail build action.
-    throw new Error(statusMsg);
+  let statusMsg: string;
+  if (eol) {
+    statusMsg = `End of life check for ${language} FAILED, EOL date was ${currentVersionInfo.eol}`;
+    core.notice(statusMsg);
+    if (failBuild) {
+      // Fail build action.
+      throw new Error(statusMsg);
+    }
+  } else {
+    statusMsg = `End of life check for ${language} ok`;
   }
   console.log(statusMsg);
 }
