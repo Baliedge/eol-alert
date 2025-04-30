@@ -99,6 +99,10 @@ function createAlertMessage(
 ): string {
   assert(typeof currentVersionInfo.eol === "string", "EOL must be a string");
   const eolDate = new Date(currentVersionInfo.eol);
+  assert(
+    !Number.isNaN(eolDate.getTime()),
+    `EOL is an invalid date: "${currentVersion.eol}"`,
+  );
   const today = new Date();
   const daysUntilEOL = Math.ceil(
     (eolDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
@@ -130,6 +134,10 @@ function createAlertMessage(
 function isEOL(versionInfo: VersionInfo): boolean {
   assert(typeof versionInfo.eol === "string", "EOL must be a string");
   const eolDate = new Date(versionInfo.eol);
+  assert(
+    !Number.isNaN(eolDate.getTime()),
+    `EOL is an invalid date: "${version.eol}"`,
+  );
   const today = new Date();
   return eolDate < today;
 }
