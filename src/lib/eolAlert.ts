@@ -67,7 +67,7 @@ export async function checkEOLVersions(repoName: string) {
     );
     await sendAlerts(webhookUrls, message);
   } catch (error) {
-    console.error("Error fetching versions or sending alert:", error);
+    core.error(`Error fetching versions or sending alert: ${error}`);
     return;
   }
 
@@ -75,7 +75,7 @@ export async function checkEOLVersions(repoName: string) {
   let statusMsg: string;
   if (eol) {
     statusMsg = `End of life check for ${language} FAILED, EOL date was ${currentVersionInfo.eol}`;
-    core.notice(statusMsg);
+    core.warning(statusMsg);
     if (failBuild) {
       // Fail build action.
       throw new Error(statusMsg);
