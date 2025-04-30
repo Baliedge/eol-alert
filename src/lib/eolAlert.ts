@@ -90,6 +90,7 @@ export async function checkEOLVersions(repoName: string) {
  * Create an alert message based on the current version's EOL status
  * @param currentVersionInfo - Information about the current version
  * @returns Alert message string
+ * @throws RangeError Invalid EOL date
  */
 function createAlertMessage(
   currentVersionInfo: VersionInfo,
@@ -101,7 +102,7 @@ function createAlertMessage(
   const eolDate = new Date(currentVersionInfo.eol);
   assert(
     !Number.isNaN(eolDate.getTime()),
-    `EOL is an invalid date: "${currentVersion.eol}"`,
+    `EOL is an invalid date: "${currentVersionInfo.eol}"`,
   );
   const today = new Date();
   const daysUntilEOL = Math.ceil(
@@ -136,7 +137,7 @@ function isEOL(versionInfo: VersionInfo): boolean {
   const eolDate = new Date(versionInfo.eol);
   assert(
     !Number.isNaN(eolDate.getTime()),
-    `EOL is an invalid date: "${version.eol}"`,
+    `EOL is an invalid date: "${versionInfo.eol}"`,
   );
   const today = new Date();
   return eolDate < today;
