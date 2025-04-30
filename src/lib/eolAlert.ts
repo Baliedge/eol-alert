@@ -125,6 +125,7 @@ function createAlertMessage(
  * Check if version is EOL
  * @param versionInfo
  * @returns boolean
+ * @throws RangeError Invalid EOL date
  */
 function isEOL(versionInfo: VersionInfo): boolean {
   assert(typeof versionInfo.eol === "string", "EOL must be a string");
